@@ -9,31 +9,37 @@
     "resume_path": "/absolute/path/to/resume.pdf",
     "linkedin_url": "https://www.linkedin.com/in/your-profile",
     "skills": [
-      "python",
-      "typescript",
-      "backend",
-      "distributed systems"
+      "ruby",
+      "ruby on rails",
+      "rails",
+      "postgresql",
+      "javascript",
+      "react"
     ]
   },
   "filters": {
     "include_titles": [
+      "ruby on rails",
+      "rails engineer",
+      "rails developer",
+      "ruby engineer",
+      "ruby developer",
       "software engineer",
       "software developer",
       "backend engineer",
       "backend developer",
       "full stack engineer",
       "fullstack developer",
-      "frontend developer",
       "developer",
-      "platform engineer",
-      "senior software engineer",
-      "ai engineer",
-      "data engineer"
+      "application engineer"
     ],
     "exclude_titles": [
+      "senior",
       "staff",
       "principal",
+      "lead",
       "manager",
+      "director",
       "intern"
     ],
     "include_locations": [
@@ -69,23 +75,33 @@
     ],
     "remotive_searches": [
       {
-        "search": "software engineer backend python",
+        "search": "\"ruby on rails\" engineer",
         "category": "software-dev",
         "limit": 50
       },
       {
-        "search": "full stack engineer typescript",
+        "search": "\"rails developer\"",
+        "category": "software-dev",
+        "limit": 50
+      },
+      {
+        "search": "\"ruby developer\" backend",
+        "category": "software-dev",
+        "limit": 50
+      },
+      {
+        "search": "\"full stack engineer\" rails",
         "category": "software-dev",
         "limit": 50
       }
     ],
     "adzuna_searches": [
       {
-        "what": "software engineer python",
+        "what": "\"ruby on rails\" developer",
         "where": "New York",
         "country": "us",
         "results_per_page": 20
-      },
+      }
     ]
   },
   "hunter": {

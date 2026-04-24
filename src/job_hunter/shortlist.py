@@ -137,17 +137,22 @@ def _score_job(job, profile: dict) -> tuple[int, str]:
     notes: list[str] = []
 
     title_signals = {
-        "senior": 12,
+        "ruby": 12,
+        "rails": 15,
         "software engineer": 15,
         "backend": 12,
         "full stack": 10,
-        "platform": 10,
-        "infrastructure": 10,
+        "developer": 8,
+        "application": 8,
     }
     for signal, points in title_signals.items():
         if signal in title:
             score += points
             notes.append(f"title:{signal}")
+
+    if "senior" in title or "staff" in title or "principal" in title or "lead" in title:
+        score -= 20
+        notes.append("seniority mismatch")
 
     if any(skill in description or skill in title for skill in skills):
         matched_skills = [skill for skill in skills if skill in description or skill in title]
