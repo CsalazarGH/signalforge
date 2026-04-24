@@ -16,16 +16,22 @@ TITLE_SIGNALS = [
 
 
 def fetch_contacts(company: str, domain: str, api_key: str) -> Iterable[ContactCandidate]:
-    if not api_key or not domain:
+    if not api_key or not (domain or company):
         return []
+    params = {
+        "type": "personal",
+        # Hunter's Domain Search returns a 400 pagination error on free plans
+        # when limit + offset is greater than 10.
+        "limit": 10,
+        "api_key": api_key,
+    }
+    if domain:
+        params["domain"] = domain
+    else:
+        params["company"] = company
     url = build_url(
         "https://api.hunter.io/v2/domain-search",
-        {
-            "domain": domain,
-            "type": "personal",
-            "limit": 100,
-            "api_key": api_key,
-        },
+        params,
     )
     payload = get_json(url)
     contacts = []

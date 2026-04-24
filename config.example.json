@@ -18,10 +18,17 @@
   "filters": {
     "include_titles": [
       "software engineer",
+      "software developer",
       "backend engineer",
+      "backend developer",
       "full stack engineer",
+      "fullstack developer",
+      "frontend developer",
+      "developer",
       "platform engineer",
-      "senior software engineer"
+      "senior software engineer",
+      "ai engineer",
+      "data engineer"
     ],
     "exclude_titles": [
       "staff",
@@ -32,7 +39,12 @@
     "include_locations": [
       "remote",
       "new york",
-      "hybrid"
+      "hybrid",
+      "usa",
+      "united states",
+      "worldwide",
+      "americas",
+      "canada"
     ]
   },
   "sources": {
@@ -53,16 +65,35 @@
         "site": "netflix",
         "company": "netflix",
         "domain": "netflix.com"
+      }
+    ],
+    "remotive_searches": [
+      {
+        "search": "software engineer backend python",
+        "category": "software-dev",
+        "limit": 50
       },
       {
-        "site": "scaleai",
-        "company": "scaleai",
-        "domain": "scale.com"
+        "search": "full stack engineer typescript",
+        "category": "software-dev",
+        "limit": 50
       }
+    ],
+    "adzuna_searches": [
+      {
+        "what": "software engineer python",
+        "where": "New York",
+        "country": "us",
+        "results_per_page": 20
+      },
     ]
   },
   "hunter": {
     "api_key": ""
+  },
+  "adzuna": {
+    "app_id": "",
+    "app_key": ""
   },
   "notifications": {
     "slack_webhook_url": "",

@@ -10,9 +10,18 @@ class HttpError(RuntimeError):
     pass
 
 
+DEFAULT_HEADERS = {
+    "User-Agent": "signalforge-job-hunter/0.1 (+https://github.com/CsalazarGH/signalforge)",
+    "Accept": "application/json",
+}
+
+
 def get_json(url: str, headers: Optional[dict[str, str]] = None) -> Any:
     try:
-        req = request.Request(url, headers=headers or {})
+        merged_headers = dict(DEFAULT_HEADERS)
+        if headers:
+            merged_headers.update(headers)
+        req = request.Request(url, headers=merged_headers)
         with request.urlopen(req, timeout=30) as resp:
             return json.loads(resp.read().decode("utf-8"))
     except URLError as exc:
@@ -20,7 +29,8 @@ def get_json(url: str, headers: Optional[dict[str, str]] = None) -> Any:
 
 
 def post_json(url: str, payload: dict[str, Any], headers: Optional[dict[str, str]] = None) -> Any:
-    merged_headers = {"Content-Type": "application/json"}
+    merged_headers = dict(DEFAULT_HEADERS)
+    merged_headers["Content-Type"] = "application/json"
     if headers:
         merged_headers.update(headers)
     req = request.Request(

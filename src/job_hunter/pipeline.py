@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 from urllib.parse import urlparse
 
-from .clients import greenhouse, hunter, lever
+from .clients import adzuna, greenhouse, hunter, lever, remotive
 from .filters import matches_filters
 from .http import HttpError
 from .models import JobOpening
@@ -45,28 +45,91 @@ def sync_jobs(config: dict, storage: Storage) -> dict[str, int]:
         except HttpError as exc:
             warnings.append(f"Lever {site}: {exc}")
 
+    for item in config.get("sources", {}).get("remotive_searches", []):
+        search = item.get("search", "") if isinstance(item, dict) else str(item)
+        category = item.get("category", "software-dev") if isinstance(item, dict) else "software-dev"
+        limit = item.get("limit", 50) if isinstance(item, dict) else 50
+        try:
+            for job in remotive.fetch_jobs(search=search, category=category, limit=limit):
+                if matches_filters(job, filters):
+                    matched_jobs.append(job)
+        except HttpError as exc:
+            warnings.append(f"Remotive {search or category}: {exc}")
+
+    adzuna_config = config.get("adzuna", {})
+    app_id = adzuna_config.get("app_id", "")
+    app_key = adzuna_config.get("app_key", "")
+    for item in config.get("sources", {}).get("adzuna_searches", []):
+        what = item.get("what", "") if isinstance(item, dict) else str(item)
+        where = item.get("where", "") if isinstance(item, dict) else ""
+        country = item.get("country", "us") if isinstance(item, dict) else "us"
+        results_per_page = item.get("results_per_page", 20) if isinstance(item, dict) else 20
+        if not app_id or not app_key:
+            warnings.append(f"Adzuna {what or country}: missing ADZUNA_APP_ID or ADZUNA_APP_KEY.")
+            continue
+        try:
+            for job in adzuna.fetch_jobs(
+                country=country,
+                what=what,
+                where=where,
+                app_id=app_id,
+                app_key=app_key,
+                results_per_page=results_per_page,
+            ):
+                if matches_filters(job, filters):
+                    matched_jobs.append(job)
+        except HttpError as exc:
+            warnings.append(f"Adzuna {what or country}: {exc}")
+
     created = storage.upsert_jobs(matched_jobs)
     return {"matched": len(matched_jobs), "created": created, "warnings": len(warnings), "warning_messages": warnings}
 
 
 def enrich_contacts(config: dict, storage: Storage, limit: int = 25) -> int:
+    result = enrich_contacts_with_details(config, storage, limit=limit)
+    return result["inserted"]
+
+
+def enrich_contacts_with_details(config: dict, storage: Storage, limit: int = 25) -> dict[str, object]:
     api_key = config.get("hunter", {}).get("api_key", "")
     if not api_key:
-        return 0
+        return {
+            "inserted": 0,
+            "checked": 0,
+            "warnings": ["Hunter API key not configured."],
+            "summary": [],
+        }
 
     jobs = storage.list_jobs(limit=limit)
     inserted = 0
+    checked = 0
+    warnings: list[str] = []
+    summary: list[str] = []
+    seen_company_domains: set[tuple[str, str]] = set()
     for row in jobs:
         domain = _extract_domain(row)
-        if not domain:
+        company_name = str(row["company"])
+        company_domain_key = (company_name, domain or company_name.lower())
+        if company_domain_key in seen_company_domains:
             continue
+        seen_company_domains.add(company_domain_key)
+        checked += 1
         try:
-            contacts = hunter.fetch_contacts(row["company"], domain, api_key)
-        except HttpError:
+            contacts = hunter.fetch_contacts(company_name, domain, api_key)
+        except HttpError as exc:
+            target = domain or company_name
+            warnings.append(f"{company_name} ({target}): {exc}")
             continue
         storage.upsert_contacts(contacts)
         inserted += len(contacts)
-    return inserted
+        target = domain or company_name
+        summary.append(f"{company_name} ({target}): {len(contacts)} contacts")
+    return {
+        "inserted": inserted,
+        "checked": checked,
+        "warnings": warnings,
+        "summary": summary,
+    }
 
 
 def notify_new_jobs(config: dict, storage: Storage, limit: int = 10) -> int:
@@ -115,9 +178,15 @@ def _extract_domain(row) -> str:
         if parsed.get("company_domain"):
             return parsed["company_domain"]
     host = urlparse(row["url"]).netloc.lower()
+    if row["source"] in {"remotive", "adzuna"}:
+        return ""
     if host.startswith("boards.greenhouse.io"):
         return ""
     if host.startswith("jobs.lever.co"):
+        return ""
+    if host.endswith("remotive.com"):
+        return ""
+    if host.endswith("adzuna.com") or host.endswith("adzuna.co.uk"):
         return ""
     return host.replace("www.", "")
 
