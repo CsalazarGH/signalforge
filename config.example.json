@@ -1,0 +1,79 @@
+{
+  "candidate_profile": {
+    "full_name": "Your Name",
+    "email": "you@example.com",
+    "locations": [
+      "Remote",
+      "New York"
+    ],
+    "resume_path": "/absolute/path/to/resume.pdf",
+    "linkedin_url": "https://www.linkedin.com/in/your-profile",
+    "skills": [
+      "python",
+      "typescript",
+      "backend",
+      "distributed systems"
+    ]
+  },
+  "filters": {
+    "include_titles": [
+      "software engineer",
+      "backend engineer",
+      "full stack engineer",
+      "platform engineer",
+      "senior software engineer"
+    ],
+    "exclude_titles": [
+      "staff",
+      "principal",
+      "manager",
+      "intern"
+    ],
+    "include_locations": [
+      "remote",
+      "new york",
+      "hybrid"
+    ]
+  },
+  "sources": {
+    "greenhouse_companies": [
+      {
+        "board_token": "stripe",
+        "company": "stripe",
+        "domain": "stripe.com"
+      },
+      {
+        "board_token": "airtable",
+        "company": "airtable",
+        "domain": "airtable.com"
+      }
+    ],
+    "lever_companies": [
+      {
+        "site": "netflix",
+        "company": "netflix",
+        "domain": "netflix.com"
+      },
+      {
+        "site": "scaleai",
+        "company": "scaleai",
+        "domain": "scale.com"
+      }
+    ]
+  },
+  "hunter": {
+    "api_key": ""
+  },
+  "notifications": {
+    "slack_webhook_url": "",
+    "email": {
+      "enabled": false,
+      "smtp_host": "",
+      "smtp_port": 587,
+      "username": "",
+      "password": "",
+      "from_email": "",
+      "to_email": ""
+    }
+  }
+}
